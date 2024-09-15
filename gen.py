@@ -5,7 +5,7 @@ from binascii import unhexlify, hexlify
 
 from construct import *
 
-supported_algorithms = ["sha3d", "X11", "quark", "lyra2re","neoscrypt","qubit","keccak"]
+supported_algorithms = ["sha256d", "sha3d", "X11", "quark", "lyra2re","neoscrypt","qubit","keccak"]
 
 def main():
   options = get_args()
@@ -33,7 +33,7 @@ def get_args():
   parser.add_option("-n", "--nonce", dest="nonce", default=0,
                    type="int", help="the first value of the nonce that will be incremented when searching the genesis hash")
   parser.add_option("-a", "--algorithm", dest="algorithm", default="SHA256",
-                    help="the PoW algorithm: [sha3d|X11|quark|keccak|qubit|neoscrypt|lyra2re]")
+                    help="the PoW algorithm: [sha256d|sha3d|X11|quark|keccak|qubit|neoscrypt|lyra2re]")
   parser.add_option("-p", "--pubkey", dest="pubkey", default="04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f",
                    type="string", help="the pubkey found in the output script")
   parser.add_option("-v", "--value", dest="value", default=5000000000,
@@ -143,22 +143,9 @@ def generate_hash(data_block, algorithm, start_nonce, bits):
 def generate_hashes_from_block(data_block, algorithm):
 #   if algorithm == 'scrypt':
 #     return scrypt.hash(data_block,data_block,1024,1,1,32)[::-1]
-#   elif algorithm == 'SHA256':
-#     return hashlib.sha256(hashlib.sha256(data_block).digest()).digest()[::-1]
-  # elif algorithm == 'X11':
-  #   try:
-  #     import xcoin_hash
-  #     header_hash = xcoin_hash.getPoWHash(data_block)[::-1]
-  #   except ImportError:
-  #     sys.exit("Cannot run X11 algorithm: module xcoin_hash not found")
-
-  # elif algorithm == 'X11':
-  #   try:
-  #     import x11_hash
-  #     header_hash = x11_hash.getPoWHash(data_block)[::-1]
-  #   except ImportError:
-  #     sys.exit("Cannot run X11 algorithm: module x11_hash not found")
-  if algorithm == 'sha3d':
+  if algorithm == 'sha256d':
+    return hashlib.sha256(hashlib.sha256(data_block).digest()).digest()[::-1]
+  elif algorithm == 'sha3d':
     a = hashlib.new('sha3-256')
     a.update(data_block)
     b = a.digest()
@@ -172,13 +159,6 @@ def generate_hashes_from_block(data_block, algorithm):
       return dash_hash.getPoWHash(data_block)[::-1]
     except ImportError:
       sys.exit("Cannot run X11 algorithm: module dash_hash not found")
-
-  # elif algorithm == 'X11':
-  #   try:      
-  #     header_hash = coinhash.X11Hash(data_block)[::-1]
-  #   except ImportError:
-  #     sys.exit("Cannot run X11 algorithm: module dash_hash not found")
-      
   elif algorithm == 'X13':
     try:
       import x13_hash
